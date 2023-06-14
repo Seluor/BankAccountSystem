@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-// Интерфейс для оповещения подписчиков об изменениях в счете
 public interface IAccountObservable {
-    void Subscribe(IAccountObserver observer);   // Подписаться на оповещения
-    void Unsubscribe(IAccountObserver observer); // Отписаться от оповещений
-    void Notify();                              // Оповестить подписчиков
+    void Subscribe(IAccountObserver observer);
+    void Unsubscribe(IAccountObserver observer);
+    void Notify();
 }
 
-// Интерфейс для подписчиков (пользователей)
 public interface IAccountObserver {
-    void Update(Account account); // Обновить состояние счета
+    void Update(Account account);
 }
 
-// Реализация счета
 public class Account : IAccountObservable {
     private static int nextId = 1;
-    private List<IAccountObserver> observers; // Список подписчиков
-    private decimal balance;                  // Баланс счета
+    private List<IAccountObserver> observers;
+    private decimal balance;
 
     public int Id { get; }
 
@@ -66,7 +63,6 @@ public class Account : IAccountObservable {
     }
 }
 
-// Реализация пользователя
 public class User : IAccountObserver {
     private string name;
 
@@ -75,7 +71,7 @@ public class User : IAccountObserver {
     }
 
     public void Update(Account account) {
-        Console.WriteLine($"User {name}: Account balance changed to {account.GetBalance()}");
+        Console.WriteLine($"Пользователь {name}: Баланс счета изменился и составляет {account.GetBalance()}");
     }
 
     public string GetName() {
@@ -83,7 +79,6 @@ public class User : IAccountObserver {
     }
 }
 
-// Главное меню
 public class MainMenu {
     private List<User> users;
     private List<Account> accounts;
@@ -95,15 +90,15 @@ public class MainMenu {
 
     public void Start() {
         while (true) {
-            Console.WriteLine("\n========== Bank System ==========");
-            Console.WriteLine("1. Create User");
-            Console.WriteLine("2. Create Account");
-            Console.WriteLine("3. Deposit");
-            Console.WriteLine("4. Withdraw");
-            Console.WriteLine("5. Transfer");
-            Console.WriteLine("6. Check Balance");
-            Console.WriteLine("7. Exit");
-            Console.Write("Enter option number: ");
+            Console.WriteLine("\n========== Банковская Система ==========");
+            Console.WriteLine("1. Создать Пользователя");
+            Console.WriteLine("2. Создать Счет");
+            Console.WriteLine("3. Пополнить Счет");
+            Console.WriteLine("4. Снять Деньги со Счета");
+            Console.WriteLine("5. Перевести Деньги");
+            Console.WriteLine("6. Проверить Баланс");
+            Console.WriteLine("7. Выйти");
+            Console.Write("Введите номер опции: ");
 
             int option;
             if (int.TryParse(Console.ReadLine(), out option)) {
@@ -127,187 +122,187 @@ public class MainMenu {
                     CheckBalance();
                     break;
                     case 7:
-                    Console.WriteLine("Exiting...");
+                    Console.WriteLine("Выход из программы...");
                     return;
                     default:
-                    Console.WriteLine("Invalid option. Please try again.");
+                    Console.WriteLine("Неверная опция. Пожалуйста, попробуйте снова.");
                     break;
                 }
             }
             else {
-                Console.WriteLine("Invalid input. Please try again.");
+                Console.WriteLine("Неверный ввод. Пожалуйста, попробуйте снова.");
             }
         }
     }
 
     private void CreateUser() {
-        Console.Write("Enter user name: ");
+        Console.Write("Введите имя пользователя: ");
         string name = Console.ReadLine();
         User user = new User(name);
         users.Add(user);
-        Console.WriteLine($"User {name} created successfully.");
+        Console.WriteLine($"Пользователь {name} успешно создан.");
     }
 
     private void CreateAccount() {
         if (users.Count == 0) {
-            Console.WriteLine("No users found. Please create a user first.");
+            Console.WriteLine("Пользователи не найдены. Пожалуйста, сначала создайте пользователя.");
             return;
         }
 
-        Console.Write("Enter user name: ");
+        Console.Write("Введите имя пользователя: ");
         string name = Console.ReadLine();
         User user = users.Find(u => u.GetName() == name);
 
         if (user == null) {
-            Console.WriteLine("User not found.");
+            Console.WriteLine("Пользователь не найден.");
             return;
         }
 
-        Console.Write("Enter initial balance: ");
+        Console.Write("Введите начальный баланс: ");
         decimal balance;
         if (decimal.TryParse(Console.ReadLine(), out balance)) {
             Account account = new Account(balance);
             account.Subscribe(user);
             accounts.Add(account);
-            Console.WriteLine("Account created successfully.");
+            Console.WriteLine($"Счет успешно создан. Идентификатор счета: {account.Id}");
         }
         else {
-            Console.WriteLine("Invalid balance amount.");
+            Console.WriteLine("Неверная сумма баланса.");
         }
     }
 
     private void Deposit() {
         if (accounts.Count == 0) {
-            Console.WriteLine("No accounts found. Please create an account first.");
+            Console.WriteLine("Счета не найдены. Пожалуйста, сначала создайте счет.");
             return;
         }
 
-        Console.Write("Enter account ID: ");
+        Console.Write("Введите идентификатор счета: ");
         int accountId;
         if (int.TryParse(Console.ReadLine(), out accountId)) {
             Account account = accounts.Find(a => a.Id == accountId);
 
             if (account == null) {
-                Console.WriteLine("Account not found.");
+                Console.WriteLine("Счет не найден.");
                 return;
             }
 
-            Console.Write("Enter deposit amount: ");
+            Console.Write("Введите сумму для пополнения: ");
             decimal amount;
             if (decimal.TryParse(Console.ReadLine(), out amount)) {
                 account.Deposit(amount);
-                Console.WriteLine("Deposit successful.");
+                Console.WriteLine("Пополнение счета прошло успешно.");
             }
             else {
-                Console.WriteLine("Invalid deposit amount.");
+                Console.WriteLine("Неверная сумма для пополнения.");
             }
         }
         else {
-            Console.WriteLine("Invalid account ID.");
+            Console.WriteLine("Неверный идентификатор счета.");
         }
     }
 
     private void Withdraw() {
         if (accounts.Count == 0) {
-            Console.WriteLine("No accounts found. Please create an account first.");
+            Console.WriteLine("Счета не найдены. Пожалуйста, сначала создайте счет.");
             return;
         }
 
-        Console.Write("Enter account ID: ");
+        Console.Write("Введите идентификатор счета: ");
         int accountId;
         if (int.TryParse(Console.ReadLine(), out accountId)) {
             Account account = accounts.Find(a => a.Id == accountId);
 
             if (account == null) {
-                Console.WriteLine("Account not found.");
+                Console.WriteLine("Счет не найден.");
                 return;
             }
 
-            Console.Write("Enter withdrawal amount: ");
+            Console.Write("Введите сумму для снятия: ");
             decimal amount;
             if (decimal.TryParse(Console.ReadLine(), out amount)) {
                 account.Withdraw(amount);
-                Console.WriteLine("Withdrawal successful.");
+                Console.WriteLine("Снятие денег со счета прошло успешно.");
             }
             else {
-                Console.WriteLine("Invalid withdrawal amount.");
+                Console.WriteLine("Неверная сумма для снятия.");
             }
         }
         else {
-            Console.WriteLine("Invalid account ID.");
+            Console.WriteLine("Неверный идентификатор счета.");
         }
     }
 
     private void Transfer() {
         if (accounts.Count < 2) {
-            Console.WriteLine("At least two accounts are required to perform a transfer.");
+            Console.WriteLine("Для перевода необходимо как минимум два счета.");
             return;
         }
 
-        Console.Write("Enter source account ID: ");
+        Console.Write("Введите идентификатор исходного счета: ");
         int sourceAccountId;
         if (int.TryParse(Console.ReadLine(), out sourceAccountId)) {
             Account sourceAccount = accounts.Find(a => a.Id == sourceAccountId);
 
             if (sourceAccount == null) {
-                Console.WriteLine("Source account not found.");
+                Console.WriteLine("Исходный счет не найден.");
                 return;
             }
 
-            Console.Write("Enter target account ID: ");
+            Console.Write("Введите идентификатор целевого счета: ");
             int targetAccountId;
             if (int.TryParse(Console.ReadLine(), out targetAccountId)) {
                 Account targetAccount = accounts.Find(a => a.Id == targetAccountId);
 
                 if (targetAccount == null) {
-                    Console.WriteLine("Target account not found.");
+                    Console.WriteLine("Целевой счет не найден.");
                     return;
                 }
 
-                Console.Write("Enter transfer amount: ");
+                Console.Write("Введите сумму для перевода: ");
                 decimal amount;
                 if (decimal.TryParse(Console.ReadLine(), out amount)) {
                     sourceAccount.Transfer(amount, targetAccount);
-                    Console.WriteLine("Transfer successful.");
+                    Console.WriteLine("Перевод выполнен успешно.");
                 }
                 else {
-                    Console.WriteLine("Invalid transfer amount.");
+                    Console.WriteLine("Неверная сумма для перевода.");
                 }
             }
             else {
-                Console.WriteLine("Invalid target account ID.");
+                Console.WriteLine("Неверный идентификатор целевого счета.");
             }
         }
         else {
-            Console.WriteLine("Invalid source account ID.");
+            Console.WriteLine("Неверный идентификатор исходного счета.");
         }
     }
 
     private void CheckBalance() {
         if (accounts.Count == 0) {
-            Console.WriteLine("No accounts found. Please create an account first.");
+            Console.WriteLine("Счета не найдены. Пожалуйста, сначала создайте счет.");
             return;
         }
 
-        Console.Write("Enter account ID: ");
+        Console.Write("Введите идентификатор счета: ");
         int accountId;
         if (int.TryParse(Console.ReadLine(), out accountId)) {
             Account account = accounts.Find(a => a.Id == accountId);
 
             if (account == null) {
-                Console.WriteLine("Account not found.");
+                Console.WriteLine("Счет не найден.");
                 return;
             }
 
-            Console.WriteLine($"Account balance: {account.GetBalance()}");
+            Console.WriteLine($"Идентификатор счета: {account.Id}");
+            Console.WriteLine($"Баланс счета: {account.GetBalance()}");
         }
         else {
-            Console.WriteLine("Invalid account ID.");
+            Console.WriteLine("Неверный идентификатор счета.");
         }
     }
 }
 
-// Пример использования
 public class Program {
     public static void Main() {
         MainMenu menu = new MainMenu();
